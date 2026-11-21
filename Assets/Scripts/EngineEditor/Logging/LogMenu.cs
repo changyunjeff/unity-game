@@ -1,4 +1,5 @@
 using System.IO;
+using Game.Core.Logging.CrashReports;
 using Game.Engine;
 using Game.Engine.Logging;
 using UnityEditor;
@@ -15,7 +16,7 @@ namespace Game.EngineEditor.Logging
         private static void OpenCrashReportDirectory() => OpenDirectory(LogSystemSettings.FromUnity().CrashReportDirectory);
 
         [MenuItem("Game/日志/写一个崩溃包")]
-        private static void WriteCrashReport() => EditorUtility.OpenWithDefaultApp(GameRuntime.Logging.WriteCrashReport("Manual"));
+        private static void WriteCrashReport() => EditorUtility.OpenWithDefaultApp(GameRuntime.Logging.WriteCrashReport(CrashReasons.Manual));
 
         // 崩溃包要用到运行时才有的最近记录，所以没在运行时这一项是灰的。
         [MenuItem("Game/日志/写一个崩溃包", true)]

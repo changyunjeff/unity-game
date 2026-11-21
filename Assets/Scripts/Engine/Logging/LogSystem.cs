@@ -19,6 +19,7 @@ namespace Game.Engine.Logging
     ///                                                           ├ 日志文件
     ///                                                           └ 盯着没人接住的异常（触发崩溃包）
     /// </code>
+    /// 每写完一个崩溃包，都把 <see cref="CrashReportWritten"/> 交给建它时给的通知（崩溃界面听这个）。
     /// </summary>
     public sealed class LogSystem : IDisposable
     {
@@ -33,12 +34,14 @@ namespace Game.Engine.Logging
         private readonly CrashReportStore _crashReports;
         private readonly FileLogSink _file;
         private readonly UncleanExitMarker _runningMarker;
+        private readonly Action<CrashReportWritten> _onCrashReportWritten;
         private bool _disposed;
 
-        private LogSystem(LogSystemSettings settings, IReadOnlyList<string> sessionInfo)
+        private LogSystem(LogSystemSettings settings, IReadOnlyList<string> sessionInfo, Action<CrashReportWritten> onCrashReportWritten)
         {
             _settings = settings ?? throw new ArgumentNullException(nameof(settings));
             _sessionInfo = sessionInfo ?? Array.Empty<string>();
+            _onCrashReportWritten = onCrashReportWritten ?? throw new ArgumentNullException(nameof(onCrashReportWritten));
 
             // 1. 去处：先装不会出错的两个，这样后面每一步出了问题都有地方记。
             Recent = new RecentLogBuffer();
@@ -83,9 +86,10 @@ namespace Game.Engine.Logging
         public string CurrentLogFile => _file?.FilePath;
 
         /// <summary>建一个日志系统并装到 <see cref="Log"/> 上。要在主线程上调用。</summary>
-        public static LogSystem Start(LogSystemSettings settings, IReadOnlyList<string> sessionInfo)
+        /// <param name="onCrashReportWritten">每写完一个崩溃包调一次。可能在任何线程上被调用；启动时补写的"上次没正常退出"的包，在这个函数返回之前就会通知。</param>
+        public static LogSystem Start(LogSystemSettings settings, IReadOnlyList<string> sessionInfo, Action<CrashReportWritten> onCrashReportWritten)
         {
-            return new LogSystem(settings, sessionInfo);
+            return new LogSystem(settings, sessionInfo, onCrashReportWritten);
         }
 
         /// <summary>手动写一个崩溃包，带上这次运行的信息、最近的日志和设定里要带的文件。返回包的目录。</summary>
@@ -100,6 +104,7 @@ namespace Game.Engine.Logging
 
             string directory = _crashReports.Save(report);
             Log.Info(LogCrash, "崩溃包已写到 " + directory);
+            Notify(reason, directory);
             return directory;
         }
 
@@ -149,21 +154,26 @@ namespace Game.Engine.Logging
             return string.IsNullOrEmpty(userProfilePath) ? (ITextScrubber)NullTextScrubber.Instance : new PathScrubber(userProfilePath);
         }
 
+        private void Notify(string reason, string directory)
+        {
+            _onCrashReportWritten(new CrashReportWritten(reason, directory, CrashReportStore.ListFiles(directory)));
+        }
+
         // 这次运行里第一次出现没人接住的异常。
         private void ReportException(LogEntry entry)
         {
-            WriteCrashReport("Exception", "异常：" + entry.Message, entry.StackTrace ?? "（没有调用栈）");
+            WriteCrashReport(CrashReasons.Exception, "异常：" + entry.Message, entry.StackTrace ?? "（没有调用栈）");
         }
 
-        // 上次的"正在运行"标记还在：上次没走到正常退出。用上次的日志文件补写一个崩溃包。
+        // 上次的"正在运行"标记还在：上次没走到正常退出。用上次的日志文件和 Unity 留下的崩溃目录补写一个崩溃包。
         private void ReportUncleanExitIfAny()
         {
-            if (!_runningMarker.TryReadLeftover(out string previousLogFile))
+            if (!_runningMarker.TryReadLeftover(out string previousLogFile, out DateTime previousStart))
             {
                 return;
             }
 
-            var report = new CrashReport("UncleanExit", DateTime.Now);
+            var report = new CrashReport(CrashReasons.UncleanExit, DateTime.Now);
             report.Details.Add("原因：上次运行没有正常退出");
             report.Details.Add("上次的日志：" + previousLogFile);
             report.Attachments.AddRange(_settings.CrashReportAttachments);
@@ -173,8 +183,14 @@ namespace Game.Engine.Logging
                 report.Attachments.Add(previousLogFile);
             }
 
+            // 进程直接崩掉时 Unity 自己会留一个带内存转储的目录。上次运行开始之后出现的，都是上次留下的。
+            IReadOnlyList<string> unityCrashes = new CrashDumpFinder(_settings.UnityCrashDirectory).FoldersSince(previousStart);
+            report.Details.Add("Unity 的崩溃目录：" + (unityCrashes.Count == 0 ? "没有找到" : "找到 " + unityCrashes.Count + " 个"));
+            report.AttachedDirectories.AddRange(unityCrashes);
+
             string directory = _crashReports.Save(report);
             Log.Warning(LogCrash, "上次运行没有正常退出，崩溃包已写到 " + directory);
+            Notify(CrashReasons.UncleanExit, directory);
         }
     }
 }
