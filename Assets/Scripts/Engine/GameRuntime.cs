@@ -2,6 +2,7 @@ using System;
 using Game.Core.Flow;
 using Game.Core.Logging;
 using Game.Core.Logging.CrashReports;
+using Game.Core.Logging.CrashUpload;
 using Game.Engine.Logging;
 using UnityEngine;
 
@@ -26,6 +27,7 @@ namespace Game.Engine
         public static CrashPrompt CrashPrompt { get; private set; }
 
         private static CrashPromptView _crashPromptView;
+        private static SentryCrashUploader _crashUploader;
 
         // Unity 每次开始运行时最早的一个时机：在任何场景和脚本之前。
         [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.SubsystemRegistration)]
@@ -37,9 +39,10 @@ namespace Game.Engine
             LogSystemSettings settings = LogSystemSettings.FromUnity();
 
             // 崩溃界面的决定要在日志系统之前建好：日志系统一起来就可能补写"上次没正常退出"的包，要能马上交给它。
-            CrashPrompt = new CrashPrompt(
-                new CrashPromptOptOut(settings.CrashPromptOptOutPath), new CrashUploadQueue(settings.CrashReportDirectory), settings.PromptOnCrash);
+            var uploads = new CrashUploadQueue(settings.CrashReportDirectory);
+            CrashPrompt = new CrashPrompt(new CrashPromptOptOut(settings.CrashPromptOptOutPath), uploads, settings.PromptOnCrash);
             Logging = LogSystem.Start(settings, SessionInfo.Collect(DateTime.Now), report => CrashPrompt?.Offer(report));
+            _crashUploader = CreateCrashUploader(settings, uploads);
             Flow = new AppFlow();
 
             Application.quitting += Stop;
@@ -56,6 +59,35 @@ namespace Game.Engine
             {
                 _crashPromptView = CrashPromptView.Create(CrashPrompt);
             }
+
+            _crashUploader?.UploadPending();
+        }
+
+        // 只在打出来的包里上传（编辑器和包共用玩家数据目录，编辑器不该替包发）。
+        // 没填 Sentry DSN 就不上传；填错了记一条错误，这次运行不上传。
+        private static SentryCrashUploader CreateCrashUploader(LogSystemSettings settings, CrashUploadQueue uploads)
+        {
+            if (Application.isEditor)
+            {
+                return null;
+            }
+
+            if (string.IsNullOrWhiteSpace(settings.SentryDsn))
+            {
+                Log.Info(LogApp, "没有设 Sentry DSN，玩家同意发送的崩溃包先留在本地");
+                return null;
+            }
+
+            try
+            {
+                string environment = Debug.isDebugBuild ? "development" : "production";
+                return new SentryCrashUploader(SentryDsn.Parse(settings.SentryDsn), uploads, Application.version, environment);
+            }
+            catch (ArgumentException exception)
+            {
+                Log.Exception(LogApp, exception, "Sentry DSN 不对，这次运行不上传崩溃包");
+                return null;
+            }
         }
 
         // 程序退出（编辑器里是停止运行）时由 Unity 调用。先后和 Start 相反：日志系统最后收，这样前面每一步都留得下日志。
@@ -69,6 +101,8 @@ namespace Game.Engine
             }
 
             _crashPromptView = null;
+            _crashUploader?.Dispose();
+            _crashUploader = null;
 
             if (Flow != null)
             {

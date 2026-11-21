@@ -87,7 +87,7 @@ namespace Game.Core.Tests.Logging.CrashReports
             prompt.Answer(CrashPromptChoice.Send);
 
             Assert.That(prompt.TryGetPending(out _), Is.False);
-            Assert.That(Uploads.Approved(), Is.EqualTo(new[] { report.Directory }));
+            Assert.That(Uploads.PendingUploads(), Is.EqualTo(new[] { report.Directory }));
         }
 
         [Test]
@@ -99,7 +99,7 @@ namespace Game.Core.Tests.Logging.CrashReports
             prompt.Answer(CrashPromptChoice.DontSend);
 
             Assert.That(prompt.TryGetPending(out _), Is.False);
-            Assert.That(Uploads.Approved(), Is.Empty);
+            Assert.That(Uploads.PendingUploads(), Is.Empty);
             Assert.That(Prompt().Offer(Report(CrashReasons.UncleanExit)), Is.True);
         }
 
@@ -111,7 +111,7 @@ namespace Game.Core.Tests.Logging.CrashReports
 
             prompt.Answer(CrashPromptChoice.NeverAsk);
 
-            Assert.That(Uploads.Approved(), Is.Empty);
+            Assert.That(Uploads.PendingUploads(), Is.Empty);
             Assert.That(new CrashPromptOptOut(OptOutPath).IsOptedOut, Is.True);
             Assert.That(Prompt().Offer(Report(CrashReasons.UncleanExit)), Is.False);
             Assert.That(Logs.Messages, Has.Some.Contains("以后都不问"));

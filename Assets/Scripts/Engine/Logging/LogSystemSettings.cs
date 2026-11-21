@@ -7,6 +7,12 @@ namespace Game.Engine.Logging
     /// <summary>日志系统要用到的全部设定。装配点建好它，交给 <see cref="LogSystem"/>；日志系统自己不去问 Unity。</summary>
     public sealed class LogSystemSettings
     {
+        /// <summary>
+        /// 收崩溃包的 Sentry 项目的 DSN（Sentry 里：项目 → Settings → Client Keys (DSN)）。
+        /// 空着就不上传，玩家同意发送的包留在本地，填上之后下次启动补发。
+        /// </summary>
+        private const string DefaultSentryDsn = "";
+
         /// <summary>日志文件所在的目录。</summary>
         public string LogDirectory { get; set; }
 
@@ -48,6 +54,9 @@ namespace Game.Engine.Logging
         /// <summary>玩家选过"以后都不问"的记号文件放在哪。</summary>
         public string CrashPromptOptOutPath { get; set; }
 
+        /// <summary>玩家同意发送的崩溃包发到哪个 Sentry 项目。为空就不上传。</summary>
+        public string SentryDsn { get; set; }
+
         /// <summary>
         /// 照 Unity 的环境填好的设定。目录都在玩家数据目录下。
         /// 自动写崩溃包、检查上次退出、弹崩溃界面只在打出来的包里开：编辑器里出异常、停止运行、重新编译都是家常便饭，开了只会堆出一堆没用的包。
@@ -69,6 +78,7 @@ namespace Game.Engine.Logging
                 UnityCrashDirectory = UnityCrashDirectoryFor(Application.platform),
                 PromptOnCrash = isPlayer,
                 CrashPromptOptOutPath = Path.Combine(root, "crash-prompt-never-ask"),
+                SentryDsn = DefaultSentryDsn,
             };
         }
 
