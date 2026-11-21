@@ -23,15 +23,23 @@ namespace Game.Core.Logging.CrashReports
         }
 
         /// <summary>上次留下的标记还在不在。在的话，<paramref name="note"/> 是上次留在里面的那句话。</summary>
-        public bool TryReadLeftover(out string note)
+        public bool TryReadLeftover(out string note) => TryReadLeftover(out note, out _);
+
+        /// <summary>
+        /// 同上，再加上那个标记是什么时候放下的，也就是上次运行开始的时候。
+        /// 用它来认哪些东西是上次运行留下的（例如 Unity 的崩溃目录）。
+        /// </summary>
+        public bool TryReadLeftover(out string note, out DateTime setTime)
         {
             if (!File.Exists(_path))
             {
                 note = null;
+                setTime = default;
                 return false;
             }
 
             note = File.ReadAllText(_path).Trim();
+            setTime = File.GetLastWriteTime(_path);
             return true;
         }
 

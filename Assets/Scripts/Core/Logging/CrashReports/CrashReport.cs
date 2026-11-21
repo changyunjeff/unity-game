@@ -28,5 +28,11 @@ namespace Game.Core.Logging.CrashReports
 
         /// <summary>要一起带走的文本文件的路径。不存在的会在 info.txt 里注明。</summary>
         public List<string> Attachments { get; } = new List<string>();
+
+        /// <summary>
+        /// 要整个带走的目录的路径，例如 Unity 自己留下的崩溃目录。放进包里时保留目录名。
+        /// 里面的文本文件做隐私处理，别的文件（内存转储）原样复制。不存在的会在 info.txt 里注明。
+        /// </summary>
+        public List<string> AttachedDirectories { get; } = new List<string>();
     }
 }

@@ -38,8 +38,19 @@ namespace Game.Engine.Logging
         public string RunningMarkerPath { get; set; }
 
         /// <summary>
+        /// Unity 自己放崩溃目录的地方。上次没正常退出时，上次运行开始之后出现在这里的子目录会整个收进崩溃包。为空就不收。
+        /// </summary>
+        public string UnityCrashDirectory { get; set; }
+
+        /// <summary>写完崩溃包后要不要弹界面问玩家发不发。</summary>
+        public bool PromptOnCrash { get; set; }
+
+        /// <summary>玩家选过"以后都不问"的记号文件放在哪。</summary>
+        public string CrashPromptOptOutPath { get; set; }
+
+        /// <summary>
         /// 照 Unity 的环境填好的设定。目录都在玩家数据目录下。
-        /// 自动写崩溃包和检查上次退出只在打出来的包里开：编辑器里出异常、停止运行、重新编译都是家常便饭，开了只会堆出一堆没用的包。
+        /// 自动写崩溃包、检查上次退出、弹崩溃界面只在打出来的包里开：编辑器里出异常、停止运行、重新编译都是家常便饭，开了只会堆出一堆没用的包。
         /// </summary>
         public static LogSystemSettings FromUnity()
         {
@@ -55,7 +66,22 @@ namespace Game.Engine.Logging
                 ReportOnException = isPlayer,
                 DetectUncleanExit = isPlayer,
                 RunningMarkerPath = Path.Combine(root, "running.marker"),
+                UnityCrashDirectory = UnityCrashDirectoryFor(Application.platform),
+                PromptOnCrash = isPlayer,
+                CrashPromptOptOutPath = Path.Combine(root, "crash-prompt-never-ask"),
             };
+        }
+
+        // Unity 的崩溃处理把每次崩溃的目录放在 %TEMP%\<公司名>\<产品名>\Crashes 下（Windows 的打出来的包）。
+        // 别的平台上崩溃由系统自己处理，不在这里收。
+        private static string UnityCrashDirectoryFor(RuntimePlatform platform)
+        {
+            if (platform != RuntimePlatform.WindowsPlayer)
+            {
+                return null;
+            }
+
+            return Path.Combine(Path.GetTempPath(), Application.companyName, Application.productName, "Crashes");
         }
     }
 }

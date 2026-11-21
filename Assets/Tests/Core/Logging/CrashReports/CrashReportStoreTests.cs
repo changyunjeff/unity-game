@@ -98,6 +98,58 @@ namespace Game.Core.Tests.Logging.CrashReports
         }
 
         [Test]
+        public void 带走的目录整个放进包里_文字做隐私处理_二进制原样复制()
+        {
+            string crash = _temp.Combine("Crash_2026-11-21_120000000");
+            Directory.CreateDirectory(Path.Combine(crash, "sub"));
+            File.WriteAllText(Path.Combine(crash, "error.log"), @"at C:\Users\zhangsan\game.exe" + "\n");
+            File.WriteAllText(Path.Combine(crash, "sub", "crash.json"), "{}\n");
+            var dump = new byte[] { 0x4D, 0x44, 0x4D, 0x50, 0x00, 0xFF, 0x0A, 0x0D };
+            File.WriteAllBytes(Path.Combine(crash, "crash.dmp"), dump);
+
+            var report = new CrashReport("UncleanExit", Time);
+            report.AttachedDirectories.Add(crash + Path.DirectorySeparatorChar);
+
+            string directory = Store(new PathScrubber(@"C:\Users\zhangsan")).Save(report);
+            string copied = Path.Combine(directory, "Crash_2026-11-21_120000000");
+
+            Assert.That(Read(copied, "error.log"), Is.EqualTo(@"at ~\game.exe" + "\n"));
+            Assert.That(File.ReadAllBytes(Path.Combine(copied, "crash.dmp")), Is.EqualTo(dump));
+            Assert.That(Read(copied, Path.Combine("sub", "crash.json")), Is.EqualTo("{}\n"));
+            Assert.That(Read(directory, CrashReportStore.InfoFileName), Does.Contain("带上了目录：Crash_2026-11-21_120000000"));
+        }
+
+        [Test]
+        public void 要带走的目录不存在_在信息里注明_不出错()
+        {
+            var report = new CrashReport("UncleanExit", Time);
+            report.AttachedDirectories.Add(_temp.Combine("没有"));
+
+            string directory = Store().Save(report);
+
+            Assert.That(Read(directory, CrashReportStore.InfoFileName), Does.Contain("没有带上").And.Contain("目录不存在"));
+        }
+
+        [Test]
+        public void 列出包里的文件_相对路径_按字典序()
+        {
+            string crash = _temp.Combine("Crash_1");
+            Directory.CreateDirectory(crash);
+            File.WriteAllText(Path.Combine(crash, "crash.dmp"), "x");
+
+            var report = new CrashReport("UncleanExit", Time);
+            report.AttachedDirectories.Add(crash);
+            string directory = Store().Save(report);
+
+            Assert.That(CrashReportStore.ListFiles(directory), Is.EqualTo(new[]
+            {
+                Path.Combine("Crash_1", "crash.dmp"),
+                CrashReportStore.InfoFileName,
+                CrashReportStore.LogFileName,
+            }));
+        }
+
+        [Test]
         public void 只留最近几个崩溃包()
         {
             CrashReportStore store = Store(keep: 2);

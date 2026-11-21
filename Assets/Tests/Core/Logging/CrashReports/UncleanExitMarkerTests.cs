@@ -37,6 +37,18 @@ namespace Game.Core.Tests.Logging.CrashReports
         }
 
         [Test]
+        public void 读得到上次标记放下的时间_也就是上次运行开始的时候()
+        {
+            string path = _temp.Combine("running.marker");
+            new UncleanExitMarker(path).Set("x");
+            var previousStart = new DateTime(2026, 11, 21, 12, 0, 0);
+            File.SetLastWriteTime(path, previousStart);
+
+            Assert.That(new UncleanExitMarker(path).TryReadLeftover(out _, out DateTime setTime), Is.True);
+            Assert.That(setTime, Is.EqualTo(previousStart));
+        }
+
+        [Test]
         public void 正常退出时拿走了标记_下次启动就读不到()
         {
             string path = _temp.Combine("running.marker");
