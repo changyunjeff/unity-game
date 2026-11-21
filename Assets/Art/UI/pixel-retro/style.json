@@ -1,0 +1,9 @@
+{
+  "id": "pixel-retro",
+  "displayName": "Pixel Retro",
+  "pixel": true,
+  "dark": "#1B1F3B",
+  "light": "#F4EBD0",
+  "primary": "#F2C14E",
+  "accent": "#D9483B"
+}

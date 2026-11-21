@@ -1,0 +1,9 @@
+{
+  "id": "hand-drawn-fantasy",
+  "displayName": "Hand-drawn Fantasy",
+  "pixel": false,
+  "dark": "#5A3A22",
+  "light": "#E8D5A9",
+  "primary": "#2E7D5B",
+  "accent": "#C9A13B"
+}

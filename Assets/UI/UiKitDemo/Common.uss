@@ -1,0 +1,217 @@
+.unity-ui-document__root {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+}
+
+.ui-root {
+    flex-grow: 1;
+    font-size: 32px;
+}
+
+.ui-screen {
+    position: absolute;
+    left: 0;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    align-items: center;
+    justify-content: center;
+}
+
+.hidden {
+    display: none;
+}
+
+.ui-menu-column {
+    width: 640px;
+    align-items: stretch;
+}
+
+.ui-title {
+    height: 192px;
+    margin-bottom: 40px;
+    -unity-text-align: middle-center;
+    font-size: 64px;
+    -unity-font-style: bold;
+}
+
+.ui-menu-panel {
+    padding: 56px 64px;
+}
+
+.ui-btn {
+    height: 96px;
+    margin: 12px 0;
+    padding: 0 40px;
+    flex-direction: row;
+    align-items: center;
+    border-width: 0;
+    background-color: rgba(0, 0, 0, 0);
+    font-size: 36px;
+    -unity-font-style: bold;
+}
+
+.ui-btn-glyph {
+    width: 56px;
+    height: 56px;
+    margin-right: 24px;
+    -unity-background-scale-mode: scale-to-fit;
+}
+
+.ui-btn-label {
+    flex-grow: 1;
+    -unity-text-align: middle-center;
+    margin-right: 80px;
+}
+
+.ui-icon-btn {
+    width: 96px;
+    height: 96px;
+    margin-left: 20px;
+    padding: 0;
+    align-items: center;
+    justify-content: center;
+    border-width: 0;
+    background-color: rgba(0, 0, 0, 0);
+}
+
+.ui-icon-btn .ui-btn-glyph {
+    margin-right: 0;
+}
+
+.ui-corner-bar {
+    position: absolute;
+    right: 48px;
+    bottom: 48px;
+    flex-direction: row;
+}
+
+.ui-dialog-wrap {
+    width: 760px;
+    align-items: center;
+}
+
+.ui-dialog-panel {
+    width: 760px;
+    padding: 56px 72px;
+    margin-top: 16px;
+}
+
+.ui-banner {
+    width: 512px;
+    height: 128px;
+    -unity-text-align: middle-center;
+    font-size: 48px;
+    -unity-font-style: bold;
+}
+
+.ui-setting-row {
+    flex-direction: row;
+    align-items: center;
+    height: 72px;
+    margin-top: 16px;
+}
+
+.ui-setting-icon {
+    width: 56px;
+    height: 56px;
+    margin-right: 24px;
+    -unity-background-scale-mode: scale-to-fit;
+}
+
+.ui-setting-spacer {
+    flex-grow: 1;
+}
+
+.ui-slider {
+    flex-grow: 1;
+    height: 64px;
+    margin: 0;
+}
+
+.ui-slider .unity-base-slider__input {
+    flex-grow: 1;
+}
+
+.ui-slider .unity-base-slider__drag-container {
+    flex-grow: 1;
+    height: 64px;
+}
+
+.ui-slider .unity-base-slider__tracker {
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 20px;
+    height: 24px;
+}
+
+.ui-slider .unity-base-slider__dragger {
+    position: absolute;
+    top: 0;
+    width: 64px;
+    height: 64px;
+}
+
+.ui-slider .unity-base-slider__dragger-border {
+    display: none;
+}
+
+.ui-toggle {
+    margin: 0;
+}
+
+.ui-toggle .unity-toggle__checkmark {
+    width: 160px;
+    height: 64px;
+}
+
+.ui-loading-box {
+    position: absolute;
+    left: 240px;
+    right: 240px;
+    bottom: 120px;
+    align-items: center;
+}
+
+.ui-loading-text {
+    width: 640px;
+    font-size: 40px;
+    margin-bottom: 24px;
+}
+
+.ui-progress-frame {
+    width: 1024px;
+    height: 64px;
+    padding: 12px 16px;
+}
+
+.ui-progress-fill {
+    height: 100%;
+}
+
+.ui-switcher {
+    position: absolute;
+    left: 24px;
+    top: 24px;
+    flex-direction: row;
+    padding: 8px;
+    background-color: rgba(0, 0, 0, 0.55);
+}
+
+.ui-switcher-btn {
+    height: 48px;
+    padding: 0 16px;
+    margin: 0 4px;
+    font-size: 22px;
+    color: rgb(255, 255, 255);
+    background-color: rgba(255, 255, 255, 0.12);
+    border-width: 0;
+}
+
+.ui-switcher-btn--on {
+    background-color: rgba(255, 255, 255, 0.4);
+}

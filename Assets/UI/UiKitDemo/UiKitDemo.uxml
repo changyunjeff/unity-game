@@ -1,0 +1,76 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements">
+    <ui:Style src="Common.uss" />
+    <ui:VisualElement name="root" class="ui-root">
+        <ui:VisualElement name="mainMenu" class="ui-screen ui-bg-main-menu">
+            <ui:VisualElement class="ui-menu-column">
+                <ui:Label name="gameTitle" text="GAME TITLE" class="ui-title ui-logo-frame" />
+                <ui:VisualElement class="ui-menu-panel ui-panel">
+                    <ui:Button name="startButton" class="ui-btn ui-btn-primary">
+                        <ui:VisualElement class="ui-btn-glyph ui-icon-start" />
+                        <ui:Label text="START" class="ui-btn-label" />
+                    </ui:Button>
+                    <ui:Button name="continueButton" class="ui-btn ui-btn-secondary">
+                        <ui:VisualElement class="ui-btn-glyph ui-icon-continue" />
+                        <ui:Label text="CONTINUE" class="ui-btn-label" />
+                    </ui:Button>
+                    <ui:Button name="settingsButton" class="ui-btn ui-btn-secondary">
+                        <ui:VisualElement class="ui-btn-glyph ui-icon-settings" />
+                        <ui:Label text="SETTINGS" class="ui-btn-label" />
+                    </ui:Button>
+                    <ui:Button name="exitButton" class="ui-btn ui-btn-secondary">
+                        <ui:VisualElement class="ui-btn-glyph ui-icon-exit" />
+                        <ui:Label text="EXIT" class="ui-btn-label" />
+                    </ui:Button>
+                </ui:VisualElement>
+            </ui:VisualElement>
+            <ui:VisualElement class="ui-corner-bar">
+                <ui:Button name="volumeButton" class="ui-icon-btn ui-btn-icon">
+                    <ui:VisualElement class="ui-btn-glyph ui-icon-volume" />
+                </ui:Button>
+                <ui:Button name="musicButton" class="ui-icon-btn ui-btn-icon">
+                    <ui:VisualElement class="ui-btn-glyph ui-icon-music" />
+                </ui:Button>
+                <ui:Button name="languageButton" class="ui-icon-btn ui-btn-icon">
+                    <ui:VisualElement class="ui-btn-glyph ui-icon-language" />
+                </ui:Button>
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement name="pause" class="ui-screen ui-bg-main-menu hidden">
+            <ui:VisualElement class="ui-dialog-wrap">
+                <ui:Label text="PAUSED" class="ui-banner ui-banner-title" />
+                <ui:VisualElement class="ui-dialog-panel ui-dialog">
+                    <ui:Button name="resumeButton" class="ui-btn ui-btn-primary">
+                        <ui:VisualElement class="ui-btn-glyph ui-icon-continue" />
+                        <ui:Label text="RESUME" class="ui-btn-label" />
+                    </ui:Button>
+                    <ui:Button name="pauseSettingsButton" class="ui-btn ui-btn-secondary">
+                        <ui:VisualElement class="ui-btn-glyph ui-icon-settings" />
+                        <ui:Label text="SETTINGS" class="ui-btn-label" />
+                    </ui:Button>
+                    <ui:Button name="quitButton" class="ui-btn ui-btn-secondary" enabled="false">
+                        <ui:VisualElement class="ui-btn-glyph ui-icon-exit" />
+                        <ui:Label text="QUIT" class="ui-btn-label" />
+                    </ui:Button>
+                    <ui:VisualElement class="ui-setting-row">
+                        <ui:VisualElement class="ui-setting-icon ui-icon-volume" />
+                        <ui:Slider name="volumeSlider" low-value="0" high-value="1" value="0.6" class="ui-slider" />
+                    </ui:VisualElement>
+                    <ui:VisualElement class="ui-setting-row">
+                        <ui:VisualElement class="ui-setting-icon ui-icon-music" />
+                        <ui:VisualElement class="ui-setting-spacer" />
+                        <ui:Toggle name="musicToggle" value="true" class="ui-toggle" />
+                    </ui:VisualElement>
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement name="loading" class="ui-screen ui-bg-loading hidden">
+            <ui:VisualElement class="ui-loading-box">
+                <ui:Label name="loadingText" text="LOADING... 40%" class="ui-banner ui-banner-title ui-loading-text" />
+                <ui:VisualElement class="ui-progress-frame">
+                    <ui:VisualElement name="progressFill" class="ui-progress-fill" />
+                </ui:VisualElement>
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement name="switcher" class="ui-switcher" />
+    </ui:VisualElement>
+</ui:UXML>
